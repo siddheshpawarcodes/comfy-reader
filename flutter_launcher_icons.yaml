@@ -1,0 +1,11 @@
+# Launcher icons for Comfy Reader. Regenerate after changing art:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/images/app_icon.png"
+  android: true
+  # Matches the logo's periwinkle field so the adaptive mask edges blend
+  # seamlessly with the scaled-down foreground.
+  adaptive_icon_background: "#7179B8"
+  adaptive_icon_foreground: "assets/images/app_icon_foreground.png"
+  ios: true
+  remove_alpha_ios: true

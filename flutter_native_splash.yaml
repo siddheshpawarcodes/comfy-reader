@@ -1,0 +1,26 @@
+# Native launch screen for Comfy Reader (eliminates the white flash before the
+# in-app animated splash). Regenerate after changing art:
+#   dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#F6EEE0"
+  image: assets/images/splash_logo.png
+  color_dark: "#1A1714"
+  image_dark: assets/images/splash_logo_dark.png
+
+  android: true
+  ios: true
+  web: false
+
+  # Android 12+ uses the system splash API, which masks the icon into a circle
+  # with a ~2/3-diameter safe zone. The full-bleed splash_logo.png gets its
+  # edges/corners shaved by that mask, so for Android 12 we use a pre-padded
+  # variant (splash_logo_android12.png: same art centered on a transparent
+  # 1152px canvas, scaled to sit fully inside the safe circle). Regenerate the
+  # padded source with `python3 tool/build_android12_splash.py` if the art changes.
+  android_12:
+    color: "#F6EEE0"
+    image: assets/images/splash_logo_android12.png
+    color_dark: "#1A1714"
+    image_dark: assets/images/splash_logo_android12.png
+    icon_background_color: "#F6EEE0"
+    icon_background_color_dark: "#1A1714"
