@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/l10n/l10n_ext.dart';
 import '../../services/permission_service.dart';
 
 /// The pre-request rationale shown before any Android storage prompt (higher
@@ -19,18 +20,19 @@ class PermissionRationaleDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
       icon: const Icon(Icons.folder_open_rounded),
-      title: const Text('Find PDFs on your device'),
+      title: Text(l10n.findPdfsTitle),
       content: Text(message),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Not now'),
+          child: Text(l10n.notNow),
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Continue'),
+          child: Text(l10n.continueLabel),
         ),
       ],
     );
@@ -69,23 +71,21 @@ class StoragePermissionFlow {
   }
 
   Future<bool> _showOpenSettings(BuildContext context) async {
+    final l10n = context.l10n;
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         icon: const Icon(Icons.lock_outline_rounded),
-        title: const Text('Storage access is off'),
-        content: const Text(
-          'Open Settings to let Comfy Reader find PDFs on your device — or just '
-          'tap + to add them manually.',
-        ),
+        title: Text(l10n.storageAccessOff),
+        content: Text(l10n.storageAccessOffBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Not now'),
+            child: Text(l10n.notNow),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Open settings'),
+            child: Text(l10n.openSettingsLabel),
           ),
         ],
       ),

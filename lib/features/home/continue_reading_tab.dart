@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/l10n/l10n_ext.dart';
 import '../../core/theme/dimens.dart';
 import '../../models/book_model.dart';
 import '../../providers/library_provider.dart';
+import '../../shared/navigation.dart';
 import '../../shared/widgets/pressable.dart';
 import 'widgets/book_cover.dart';
 
@@ -19,7 +20,7 @@ class ContinueReadingTab extends StatelessWidget {
     final books = context.watch<LibraryProvider>().inProgress;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Continue Reading')),
+      appBar: AppBar(title: Text(context.l10n.continueReadingTitle)),
       body: books.isEmpty
           ? const _NothingInProgress()
           : ListView.separated(
@@ -48,7 +49,7 @@ class _ProgressRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Pressable(
-      onTap: () => context.push('/reader/${book.id}'),
+      onTap: () => openReader(context, book.id),
       child: Container(
         padding: const EdgeInsets.all(Dimens.space3),
         decoration: BoxDecoration(
@@ -90,7 +91,10 @@ class _ProgressRow extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          'Page ${book.lastReadPage + 1} of ${book.totalPages}',
+                          context.l10n.pageOfTotal(
+                            book.lastReadPage + 1,
+                            book.totalPages,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall,
@@ -98,7 +102,7 @@ class _ProgressRow extends StatelessWidget {
                       ),
                       Dimens.space2.horizontalSpace,
                       Text(
-                        '${(book.progress * 100).round()}%',
+                        context.l10n.percentValue((book.progress * 100).round()),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: scheme.primary,
                           fontWeight: FontWeight.w600,
@@ -150,11 +154,11 @@ class _NothingInProgress extends StatelessWidget {
               ),
             ),
             Dimens.space5.verticalSpace,
-            Text('Nothing in progress', style: theme.textTheme.headlineSmall),
+            Text(context.l10n.nothingInProgress,
+                style: theme.textTheme.headlineSmall),
             Dimens.space2.verticalSpace,
             Text(
-              'Open a book from your Library and it will show up here so you can '
-              'pick up right where you left off.',
+              context.l10n.nothingInProgressBody,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: scheme.onSurface.withValues(alpha: 0.7),

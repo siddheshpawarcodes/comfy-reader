@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/home/home_shell.dart';
 import '../../features/reader/reader_screen.dart';
+import '../../features/settings/voices_screen.dart';
 import '../../features/splash/splash_screen.dart';
 import '../constants/durations.dart';
 
@@ -26,6 +27,10 @@ final GoRouter appRouter = GoRouter(
         state,
         ReaderScreen(bookId: state.pathParameters['bookId']!),
       ),
+    ),
+    GoRoute(
+      path: '/voices',
+      pageBuilder: (context, state) => _fadePage(state, const VoicesScreen()),
     ),
   ],
 );

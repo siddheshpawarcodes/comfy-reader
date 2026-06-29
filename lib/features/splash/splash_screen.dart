@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/asset_paths.dart';
+import '../../core/l10n/l10n_ext.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/library_provider.dart';
 
@@ -111,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   .slideY(begin: 0.4, end: 0, curve: Curves.easeOutCubic),
               10.verticalSpace,
               Text(
-                "Read like it's a real book.",
+                context.l10n.appTagline,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: textColor.withValues(alpha: 0.7),
                       fontStyle: FontStyle.italic,

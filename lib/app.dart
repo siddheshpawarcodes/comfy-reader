@@ -1,7 +1,10 @@
+import 'package:comfy_reader/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
+import 'core/l10n/l10n_ext.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/library_provider.dart';
@@ -37,16 +40,27 @@ class ComfyReaderApp extends StatelessWidget {
           return Consumer<SettingsProvider>(
             builder: (context, settings, _) {
               return MaterialApp.router(
-                title: 'Comfy Reader',
+                onGenerateTitle: (context) => context.l10n.appTitle,
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.light,
                 darkTheme: AppTheme.dark,
                 themeMode: settings.flutterThemeMode,
+                // App UI language (persisted in settings). `null`-safe: an
+                // unsupported locale falls back to English via the delegate.
+                locale: settings.locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
                 routerConfig: appRouter,
-                // Bound OS font scaling app-wide so accessibility font sizes
-                // can't overflow the chrome. Applied above every routed page.
-                builder: (context, child) =>
-                    MaxTextScale(child: child ?? const SizedBox.shrink()),
+                // One app-wide ShowCaseWidget so any screen can drive its
+                // feature tour, wrapped under MaxTextScale which bounds OS font
+                // scaling so accessibility sizes can't overflow the chrome.
+                builder: (context, child) => ShowCaseWidget(
+                  // Scroll a target into view when it sits below the fold
+                  // (e.g. the lower Settings cards) before highlighting it.
+                  enableAutoScroll: true,
+                  builder: (context) =>
+                      MaxTextScale(child: child ?? const SizedBox.shrink()),
+                ),
               );
             },
           );

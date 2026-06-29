@@ -6,8 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../core/l10n/l10n_ext.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/dimens.dart';
 import '../../models/enums.dart';
@@ -16,6 +18,7 @@ import '../../providers/read_aloud_controller.dart';
 import '../../providers/reader_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/audio_service.dart';
+import '../../services/tour_service.dart';
 import 'widgets/book_curl_view.dart';
 import 'widgets/reader_overlay.dart';
 
@@ -39,6 +42,39 @@ class _ReaderScreenState extends State<ReaderScreen>
   double _brightness = 0.5;
   bool _brightnessTouched = false;
 
+  // Reader feature-tour coach-mark anchors.
+  final _tourScrubberKey = GlobalKey();
+  final _tourReadAloudKey = GlobalKey();
+  final _tourTintKey = GlobalKey();
+  final _tourBrightnessKey = GlobalKey();
+  final _tourBookmarkKey = GlobalKey();
+  bool _readerTourScheduled = false;
+
+  /// On the first-ever reader open, reveal the controls and run the feature
+  /// tour. Two post-frames: one so [toggleOverlay] makes the chrome visible,
+  /// the next so the coach-mark targets are laid out before highlighting.
+  void _maybeStartReaderTour(ReaderProvider reader) {
+    if (_readerTourScheduled || TourService.instance.seen(TourService.reader)) {
+      return;
+    }
+    _readerTourScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!reader.overlayVisible) reader.toggleOverlay();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        TourService.instance.markSeen(TourService.reader);
+        ShowCaseWidget.of(context).startShowCase([
+          _tourScrubberKey,
+          _tourReadAloudKey,
+          _tourTintKey,
+          _tourBrightnessKey,
+          _tourBookmarkKey,
+        ]);
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +93,10 @@ class _ReaderScreenState extends State<ReaderScreen>
         reader: _reader!,
         curl: _curl,
         initialRate: settings.speechRate,
+        autoDetectLanguage: settings.autoDetectLanguage,
+        devanagariLanguage: settings.devanagariLanguage,
+        voiceByLanguage: settings.voiceByLanguage,
+        readScannedBooks: settings.readScannedBooks,
       );
       library.markOpened(book.id);
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -211,6 +251,7 @@ class _ReaderScreenState extends State<ReaderScreen>
   /// password-protected, or corrupt).
   Widget _errorView(ReaderProvider reader) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(Dimens.space6),
@@ -225,13 +266,13 @@ class _ReaderScreenState extends State<ReaderScreen>
             ),
             Dimens.space4.verticalSpace,
             Text(
-              "Can't open this book",
+              l10n.cantOpenBook,
               style: theme.textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             Dimens.space2.verticalSpace,
             Text(
-              reader.errorMessage ?? 'Something went wrong.',
+              reader.errorMessage ?? l10n.somethingWentWrong,
               style: theme.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -239,7 +280,7 @@ class _ReaderScreenState extends State<ReaderScreen>
             FilledButton.icon(
               onPressed: () => context.pop(),
               icon: const Icon(Icons.arrow_back_rounded),
-              label: const Text('Go back'),
+              label: Text(l10n.goBack),
             ),
             Dimens.space4.verticalSpace,
           ],
@@ -250,6 +291,7 @@ class _ReaderScreenState extends State<ReaderScreen>
 
   void _showBookmarks() {
     final reader = _reader!;
+    final l10n = context.l10n;
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -258,9 +300,9 @@ class _ReaderScreenState extends State<ReaderScreen>
         builder: (context, _) {
           final pages = reader.bookmarkedPages;
           if (pages.isEmpty) {
-            return const Padding(
-              padding: EdgeInsets.all(Dimens.space6),
-              child: Text('No bookmarks yet. Tap the bookmark icon to add one.'),
+            return Padding(
+              padding: const EdgeInsets.all(Dimens.space6),
+              child: Text(l10n.noBookmarks),
             );
           }
           return ListView(
@@ -269,7 +311,7 @@ class _ReaderScreenState extends State<ReaderScreen>
               for (final p in pages)
                 ListTile(
                   leading: const Icon(Icons.bookmark_rounded),
-                  title: Text('Page ${p + 1}'),
+                  title: Text(l10n.pageNumber(p + 1)),
                   onTap: () {
                     Navigator.of(context).pop();
                     _curl.jumpTo(p);
@@ -289,7 +331,7 @@ class _ReaderScreenState extends State<ReaderScreen>
     if (reader == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: Text('Book not found')),
+        body: Center(child: Text(context.l10n.bookNotFound)),
       );
     }
     final mq = MediaQuery.of(context);
@@ -303,6 +345,9 @@ class _ReaderScreenState extends State<ReaderScreen>
       ],
       child: Consumer<ReaderProvider>(
         builder: (context, reader, _) {
+          if (reader.status == ReaderStatus.ready) {
+            _maybeStartReaderTour(reader);
+          }
           return Scaffold(
             backgroundColor: _bgColor(reader.tint),
             body: switch (reader.status) {
@@ -346,6 +391,11 @@ class _ReaderScreenState extends State<ReaderScreen>
                         onShowBookmarks: _showBookmarks,
                         brightness: _brightness,
                         onBrightnessChanged: _onBrightnessChanged,
+                        scrubberShowcaseKey: _tourScrubberKey,
+                        readAloudShowcaseKey: _tourReadAloudKey,
+                        tintShowcaseKey: _tourTintKey,
+                        brightnessShowcaseKey: _tourBrightnessKey,
+                        bookmarkShowcaseKey: _tourBookmarkKey,
                       ),
                     ),
                   ],

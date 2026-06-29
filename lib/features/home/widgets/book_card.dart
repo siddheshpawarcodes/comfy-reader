@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/dimens.dart';
 import '../../../models/book_model.dart';
+import '../../../shared/navigation.dart';
 import '../../../shared/widgets/pressable.dart';
 import 'book_context_sheet.dart';
 import 'book_cover.dart';
@@ -15,7 +15,7 @@ class BookCard extends StatelessWidget {
 
   final BookModel book;
 
-  void _open(BuildContext context) => context.push('/reader/${book.id}');
+  void _open(BuildContext context) => openReader(context, book.id);
 
   @override
   Widget build(BuildContext context) {

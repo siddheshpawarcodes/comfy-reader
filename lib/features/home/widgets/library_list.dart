@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/dimens.dart';
 import '../../../models/book_model.dart';
+import '../../../shared/navigation.dart';
 import '../../../shared/widgets/pressable.dart';
 import 'book_context_sheet.dart';
 import 'book_cover.dart';
@@ -42,7 +42,7 @@ class _LibraryRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Pressable(
-      onTap: () => context.push('/reader/${book.id}'),
+      onTap: () => openReader(context, book.id),
       onLongPress: () => BookContextSheet.show(context, book),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

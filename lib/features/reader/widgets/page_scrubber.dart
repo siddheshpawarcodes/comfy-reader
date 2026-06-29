@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/dimens.dart';
 import '../../../models/book_model.dart';
 import '../pdf_page_image_provider.dart';
@@ -29,7 +30,8 @@ class _PageScrubberState extends State<PageScrubber> {
     final theme = Theme.of(context);
     final total = widget.book.totalPages;
     if (total <= 1) {
-      return Text('Page 1 of $total', style: theme.textTheme.bodySmall);
+      return Text(context.l10n.pageOfTotal(1, total),
+          style: theme.textTheme.bodySmall);
     }
     final value = (_dragValue ?? widget.currentPage.toDouble())
         .clamp(0.0, (total - 1).toDouble());

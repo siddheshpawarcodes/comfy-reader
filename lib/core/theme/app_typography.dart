@@ -14,6 +14,7 @@ abstract final class AppTypography {
   /// App wordmark ("Comfy Reader").
   static const TextStyle wordmark = TextStyle(
     fontFamily: AppFonts.display,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 26,
     fontWeight: FontWeight.w600,
     fontVariations: _w600,
@@ -23,6 +24,7 @@ abstract final class AppTypography {
   /// Large display / hero headings.
   static const TextStyle displayLarge = TextStyle(
     fontFamily: AppFonts.display,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 34,
     fontWeight: FontWeight.w700,
     fontVariations: _w700,
@@ -32,6 +34,7 @@ abstract final class AppTypography {
   /// Section titles ("Continue Reading", "Library").
   static const TextStyle sectionTitle = TextStyle(
     fontFamily: AppFonts.display,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 20,
     fontWeight: FontWeight.w600,
     fontVariations: _w600,
@@ -40,6 +43,7 @@ abstract final class AppTypography {
   /// Book titles on cards / reader top bar.
   static const TextStyle bookTitle = TextStyle(
     fontFamily: AppFonts.bookTitle,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 16,
     fontWeight: FontWeight.w600,
     fontVariations: _w600,
@@ -48,6 +52,7 @@ abstract final class AppTypography {
 
   static const TextStyle bodyLarge = TextStyle(
     fontFamily: AppFonts.ui,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 16,
     fontWeight: FontWeight.w400,
     fontVariations: _w400,
@@ -56,6 +61,7 @@ abstract final class AppTypography {
 
   static const TextStyle bodyMedium = TextStyle(
     fontFamily: AppFonts.ui,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     fontVariations: _w400,
@@ -64,6 +70,7 @@ abstract final class AppTypography {
 
   static const TextStyle label = TextStyle(
     fontFamily: AppFonts.ui,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 13,
     fontWeight: FontWeight.w500,
     fontVariations: _w500,
@@ -71,6 +78,7 @@ abstract final class AppTypography {
 
   static const TextStyle caption = TextStyle(
     fontFamily: AppFonts.ui,
+    fontFamilyFallback: AppFonts.fallback,
     fontSize: 12,
     fontWeight: FontWeight.w400,
     fontVariations: _w400,

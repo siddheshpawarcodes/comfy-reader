@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../core/utils/app_log.dart';
+import '../core/utils/language_detector.dart';
 import '../features/reader/widgets/book_curl_view.dart';
+import '../services/ocr_service.dart';
 import '../services/pdf_service.dart';
 import '../services/tts_service.dart';
 import 'reader_provider.dart';
@@ -47,10 +49,16 @@ class ReadAloudController extends ChangeNotifier {
     required this.reader,
     required this.curl,
     required double initialRate,
+    this.autoDetectLanguage = true,
+    this.devanagariLanguage = 'hi-IN',
+    this.voiceByLanguage = const <String, String>{},
+    this.readScannedBooks = true,
     PdfService? pdf,
     TtsService? tts,
+    OcrService? ocr,
   })  : _pdf = pdf ?? const PdfService(),
-        _tts = tts ?? TtsService.instance {
+        _tts = tts ?? TtsService.instance,
+        _ocr = ocr ?? OcrService.instance {
     _tts.setRate(initialRate);
     _tts.onComplete = _onUtteranceComplete;
     _tts.onError = _onError;
@@ -62,6 +70,19 @@ class ReadAloudController extends ChangeNotifier {
   final BookCurlController curl;
   final PdfService _pdf;
   final TtsService _tts;
+  final OcrService _ocr;
+
+  /// Pick the spoken language from each page's script (vs. always English).
+  final bool autoDetectLanguage;
+
+  /// Which language Devanagari text is read as (`hi-IN` or `mr-IN`).
+  final String devanagariLanguage;
+
+  /// Per-language voice overrides (BCP-47 locale → voice name).
+  final Map<String, String> voiceByLanguage;
+
+  /// OCR pages with no text layer (scanned books) so they can still be read.
+  final bool readScannedBooks;
 
   /// Debounce page-change reactions so scrubbing many pages doesn't stutter.
   static const Duration _pageSettle = Duration(milliseconds: 350);
@@ -80,6 +101,10 @@ class ReadAloudController extends ChangeNotifier {
   int _consecutiveEmpty = 0;
   bool _spokeAnything = false;
 
+  /// True while OCR is running for the current page (a slower path) — drives a
+  /// distinct "Scanning…" status.
+  bool _ocrRunning = false;
+
   Timer? _pageDebounce;
 
   /// Guards against a stale text-extraction result winning a race when the
@@ -97,12 +122,15 @@ class ReadAloudController extends ChangeNotifier {
   /// User-facing status line for the playback bar.
   String get statusLabel => switch (_state) {
         ReadAloudState.idle => '',
-        ReadAloudState.loading => 'Preparing page ${_speakingPage + 1}…',
+        ReadAloudState.loading => _ocrRunning
+            ? 'Scanning page ${_speakingPage + 1}…'
+            : 'Preparing page ${_speakingPage + 1}…',
         ReadAloudState.playing => 'Reading page ${_speakingPage + 1}',
         ReadAloudState.paused => 'Paused · page ${_speakingPage + 1}',
         ReadAloudState.finished => 'Finished',
-        ReadAloudState.unavailable =>
-          'No readable text — this book may be scanned images.',
+        ReadAloudState.unavailable => readScannedBooks
+            ? "Couldn't read this book — the scanned text wasn't clear enough."
+            : 'Scanned book — turn on “Read scanned books” in Settings to listen.',
       };
 
   // ---- Controls ----
@@ -150,6 +178,7 @@ class ReadAloudController extends ChangeNotifier {
     _chunks = const [];
     _chunkIndex = 0;
     _speakingPage = -1;
+    _ocrRunning = false;
     _state = ReadAloudState.idle;
     notifyListeners();
   }
@@ -183,7 +212,17 @@ class ReadAloudController extends ChangeNotifier {
 
     if (token != _extractToken) return; // a newer page took over
 
-    final body = (text ?? '').trim();
+    var body = (text ?? '').trim();
+    // No embedded text → likely a scanned page. Fall back to OCR (slower) if the
+    // user hasn't turned it off.
+    if (body.isEmpty && readScannedBooks) {
+      _ocrRunning = true;
+      notifyListeners(); // surface the "Scanning…" status
+      final recognized = await _ocr.recognizePage(filePath, page, pdf: _pdf);
+      _ocrRunning = false;
+      if (token != _extractToken) return; // page changed during OCR
+      body = (recognized ?? '').trim();
+    }
     if (body.isEmpty) {
       _handleEmptyPage();
       return;
@@ -196,6 +235,28 @@ class ReadAloudController extends ChangeNotifier {
     if (_chunks.isEmpty) {
       _handleEmptyPage();
       return;
+    }
+    // Tell the engine which language this page is in (and the user's preferred
+    // voice for it) before speaking — otherwise non-English pages are read with
+    // an English voice and come out garbled.
+    if (autoDetectLanguage) {
+      final script = LanguageDetector.detect(body);
+      final locale = LanguageDetector.languageFor(
+        script,
+        devanagariIsMarathi: devanagariLanguage == 'mr-IN',
+      );
+      // Marathi shares Devanagari with Hindi; if the device has no offline
+      // Marathi voice, read it with the Hindi voice rather than a broken one.
+      final fallback =
+          (script == ReadingScript.devanagari && locale == 'mr-IN')
+              ? 'hi-IN'
+              : null;
+      await _tts.applyLanguage(
+        locale,
+        preferredVoiceName: voiceByLanguage[locale],
+        fallbackLocale: fallback,
+      );
+      if (token != _extractToken) return; // page changed while applying
     }
     _state = ReadAloudState.playing;
     notifyListeners();

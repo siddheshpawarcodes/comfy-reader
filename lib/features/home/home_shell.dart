@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/l10n/l10n_ext.dart';
 import '../settings/settings_screen.dart';
 import 'continue_reading_tab.dart';
 import 'library_tab.dart';
@@ -19,13 +20,9 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
-  static const List<Widget> _tabs = <Widget>[
-    LibraryTab(),
-    ContinueReadingTab(),
-    SettingsScreen(),
-  ];
+  static const int _tabCount = 3;
 
-  late int _index = widget.initialTab.clamp(0, _tabs.length - 1);
+  late int _index = widget.initialTab.clamp(0, _tabCount - 1);
 
   void _onSelect(int i) {
     if (i == _index) return;
@@ -35,8 +32,26 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    // Built per-frame so each tab learns whether it's the visible one (drives
+    // its first-run feature tour, since IndexedStack keeps tabs mounted).
+    final tabs = <Widget>[
+      LibraryTab(isActive: _index == 0),
+      const ContinueReadingTab(),
+      SettingsScreen(isActive: _index == 2),
+    ];
     return Scaffold(
-      body: IndexedStack(index: _index, children: _tabs),
+      // Wrap each tab in HeroMode so only the visible tab's heroes can take
+      // part in a flight. The IndexedStack keeps every tab mounted, so without
+      // this an offstage tab's cover hero could fly when opening a book from a
+      // different tab (wrong source rect) and destabilize the transition.
+      body: IndexedStack(
+        index: _index,
+        children: [
+          for (var i = 0; i < tabs.length; i++)
+            HeroMode(enabled: _index == i, child: tabs[i]),
+        ],
+      ),
       // A hairline divider keeps the flat (elevation-0) nav bar visually
       // separated from the body content above it.
       bottomNavigationBar: DecoratedBox(
@@ -48,21 +63,21 @@ class _HomeShellState extends State<HomeShell> {
         child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: _onSelect,
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.local_library_outlined),
-              selectedIcon: Icon(Icons.local_library_rounded),
-              label: 'Library',
+              icon: const Icon(Icons.local_library_outlined),
+              selectedIcon: const Icon(Icons.local_library_rounded),
+              label: l10n.navLibrary,
             ),
             NavigationDestination(
-              icon: Icon(Icons.auto_stories_outlined),
-              selectedIcon: Icon(Icons.auto_stories_rounded),
-              label: 'Reading',
+              icon: const Icon(Icons.auto_stories_outlined),
+              selectedIcon: const Icon(Icons.auto_stories_rounded),
+              label: l10n.navReading,
             ),
             NavigationDestination(
-              icon: Icon(Icons.settings_outlined),
-              selectedIcon: Icon(Icons.settings_rounded),
-              label: 'Settings',
+              icon: const Icon(Icons.settings_outlined),
+              selectedIcon: const Icon(Icons.settings_rounded),
+              label: l10n.navSettings,
             ),
           ],
         ),

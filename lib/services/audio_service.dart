@@ -34,7 +34,13 @@ class AudioService {
     if (!enabled || !_ready) return;
     try {
       await _player.setVolume(volume.clamp(0.0, 1.0));
-      await _player.seek(Duration.zero);
+      // Restart via stop() rather than seek(Duration.zero): in low-latency mode
+      // (Android SoundPool) `seek` does not reset the player's internal
+      // `playing` flag, so a subsequent resume() is a no-op and the sound only
+      // ever plays once. stop() clears that flag while keeping the source loaded
+      // (ReleaseMode.stop), so every turn replays from the start. Harmless on
+      // iOS/macOS, where lowLatency falls back to the standard player.
+      await _player.stop();
       await _player.resume();
     } catch (e, st) {
       AppLog.warning('playPageTurn failed',

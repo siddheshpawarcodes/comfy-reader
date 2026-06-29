@@ -31,6 +31,16 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Localization: official Flutter ARB pipeline (flutter gen-l10n). The app UI
+  # is translatable into English + 8 Indian languages; intl supplies the ICU
+  # plural/placeholder runtime the generated AppLocalizations imports. Version
+  # is left to `any` so it tracks whatever flutter_localizations pins.
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  # Coach-mark feature tour (auto on first run + replay from Settings).
+  showcaseview: ^4.0.1
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -41,6 +51,10 @@ dependencies:
   pdfrx: ^2.4.4
   # Read-aloud speech via the OS-native TTS engines (offline, no API keys).
   flutter_tts: ^4.2.0
+  # On-device OCR (free, offline) for read-aloud on scanned PDFs that have no
+  # text layer. Covers Latin (English) + Devanagari (Hindi/Marathi); other Indic
+  # scripts are a later (Tesseract) addition. Requires iOS 15.5+.
+  google_mlkit_text_recognition: ^0.15.0
   file_picker: ^11.0.0
   permission_handler: ^12.0.3
   path_provider: ^2.1.6
@@ -59,6 +73,7 @@ dependencies:
   wakelock_plus: ">=1.5.2 <1.6.0"
   crypto: ^3.0.7
   flutter_screenutil: ^5.9.3
+  sherpa_onnx: ^1.13.3
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +97,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Generate AppLocalizations from the ARB files in lib/l10n (see l10n.yaml).
+  generate: true
 
   # App assets. Folder form registers every file in the directory.
   assets:

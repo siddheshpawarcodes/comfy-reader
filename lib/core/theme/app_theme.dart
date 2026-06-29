@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/asset_paths.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 import 'dimens.dart';
@@ -151,6 +152,9 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: background,
       textTheme: textTheme,
       fontFamily: 'Inter',
+      // Indic-script fallback so Hindi/Tamil/etc. UI text renders instead of
+      // tofu when the bundled Latin fonts lack the glyphs.
+      fontFamilyFallback: AppFonts.fallback,
       extensions: <ThemeExtension<dynamic>>[comfy],
       appBarTheme: AppBarThemeData(
         backgroundColor: background,

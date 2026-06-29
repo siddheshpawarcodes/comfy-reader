@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
+import '../../core/l10n/l10n_ext.dart';
 import '../../core/theme/dimens.dart';
 import '../../models/enums.dart';
 import '../../providers/library_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../services/tour_service.dart';
 import '../../shared/widgets/permission_rationale_dialog.dart';
 import 'widgets/add_pdf_fab.dart';
 import 'widgets/empty_state.dart';
@@ -15,7 +18,10 @@ import 'widgets/library_list.dart';
 /// The "Library" tab: the full collection of imported/scanned books with
 /// search, layout toggle, and sort. Lives inside [HomeShell]'s bottom nav.
 class LibraryTab extends StatefulWidget {
-  const LibraryTab({super.key});
+  const LibraryTab({super.key, this.isActive = true});
+
+  /// Whether this is the visible tab — gates the first-run feature tour.
+  final bool isActive;
 
   @override
   State<LibraryTab> createState() => _LibraryTabState();
@@ -25,10 +31,38 @@ class _LibraryTabState extends State<LibraryTab> {
   final TextEditingController _searchController = TextEditingController();
   bool _searching = false;
 
+  // Showcase coach-mark anchors.
+  final _searchKey = GlobalKey();
+  final _layoutKey = GlobalKey();
+  final _fabKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isActive) _scheduleTour();
+  }
+
+  @override
+  void didUpdateWidget(LibraryTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) _scheduleTour();
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _scheduleTour() {
+    if (TourService.instance.seen(TourService.home)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTour());
+  }
+
+  void _startTour() {
+    if (!mounted || TourService.instance.seen(TourService.home)) return;
+    TourService.instance.markSeen(TourService.home);
+    ShowCaseWidget.of(context).startShowCase([_searchKey, _layoutKey, _fabKey]);
   }
 
   void _toggleSearch() {
@@ -50,14 +84,13 @@ class _LibraryTabState extends State<LibraryTab> {
   Future<void> _onRefresh() async {
     final library = context.read<LibraryProvider>();
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final granted = await const StoragePermissionFlow().ensure(context);
     if (!granted) {
       // Android-only: the rationale/settings dialogs already explained; nudge
       // toward manual import. (iOS returns granted=true, so it never lands here.)
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('No storage access — tap + to add PDFs.'),
-        ),
+        SnackBar(content: Text(l10n.noStorageAccess)),
       );
       return;
     }
@@ -65,7 +98,7 @@ class _LibraryTabState extends State<LibraryTab> {
     if (!mounted) return;
     messenger.showSnackBar(
       SnackBar(
-        content: Text(count == 0 ? 'No new books found' : 'Found $count book(s)'),
+        content: Text(count == 0 ? l10n.noNewBooks : l10n.foundBooks(count)),
       ),
     );
   }
@@ -75,22 +108,34 @@ class _LibraryTabState extends State<LibraryTab> {
     final library = context.watch<LibraryProvider>();
     final books = library.filteredSortedBooks;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: _searching ? _searchField() : const Text('Library'),
+        title: _searching ? _searchField() : Text(l10n.libraryTitle),
         actions: [
-          IconButton(
-            tooltip: _searching ? 'Close search' : 'Search',
-            icon: Icon(_searching ? Icons.close_rounded : Icons.search_rounded),
-            onPressed: _toggleSearch,
+          Showcase(
+            key: _searchKey,
+            title: l10n.tourSearchTitle,
+            description: l10n.tourSearchBody,
+            child: IconButton(
+              tooltip: _searching ? l10n.closeSearchTooltip : l10n.searchTooltip,
+              icon:
+                  Icon(_searching ? Icons.close_rounded : Icons.search_rounded),
+              onPressed: _toggleSearch,
+            ),
           ),
-          IconButton(
-            tooltip: 'Toggle layout',
-            icon: Icon(library.view == LibraryView.grid
-                ? Icons.view_list_rounded
-                : Icons.grid_view_rounded),
-            onPressed: library.toggleView,
+          Showcase(
+            key: _layoutKey,
+            title: l10n.tourLayoutTitle,
+            description: l10n.tourLayoutBody,
+            child: IconButton(
+              tooltip: l10n.toggleLayoutTooltip,
+              icon: Icon(library.view == LibraryView.grid
+                  ? Icons.view_list_rounded
+                  : Icons.grid_view_rounded),
+              onPressed: library.toggleView,
+            ),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert_rounded),
@@ -104,19 +149,24 @@ class _LibraryTabState extends State<LibraryTab> {
                         ? Icons.light_mode_rounded
                         : Icons.dark_mode_rounded),
                     Dimens.space3.horizontalSpace,
-                    Text(isDark ? 'Day theme' : 'Night theme'),
+                    Text(isDark ? l10n.dayTheme : l10n.nightTheme),
                   ],
                 ),
               ),
               const PopupMenuDivider(),
-              _sortItem('sort_recent', 'Sort: Recent', SortMode.recent),
-              _sortItem('sort_name', 'Sort: Name', SortMode.name),
-              _sortItem('sort_date', 'Sort: Date added', SortMode.dateAdded),
+              _sortItem('sort_recent', l10n.sortRecent, SortMode.recent),
+              _sortItem('sort_name', l10n.sortName, SortMode.name),
+              _sortItem('sort_date', l10n.sortDateAdded, SortMode.dateAdded),
             ],
           ),
         ],
       ),
-      floatingActionButton: const AddPdfFab(),
+      floatingActionButton: Showcase(
+        key: _fabKey,
+        title: l10n.tourAddTitle,
+        description: l10n.tourAddBody,
+        child: const AddPdfFab(),
+      ),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         child: CustomScrollView(
@@ -147,8 +197,8 @@ class _LibraryTabState extends State<LibraryTab> {
     return TextField(
       controller: _searchController,
       autofocus: true,
-      decoration: const InputDecoration(
-        hintText: 'Search titles…',
+      decoration: InputDecoration(
+        hintText: context.l10n.searchHint,
         border: InputBorder.none,
       ),
       style: Theme.of(context).textTheme.titleMedium,

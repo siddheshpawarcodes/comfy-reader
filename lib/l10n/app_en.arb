@@ -1,0 +1,187 @@
+{
+  "@@locale": "en",
+  "appTitle": "Comfy Reader",
+  "appTagline": "Read like it's a real book.",
+  "navLibrary": "Library",
+  "navReading": "Reading",
+  "navSettings": "Settings",
+  "close": "Close",
+  "notNow": "Not now",
+  "continueLabel": "Continue",
+  "open": "Open",
+  "goBack": "Go back",
+  "libraryTitle": "Library",
+  "searchTooltip": "Search",
+  "closeSearchTooltip": "Close search",
+  "searchHint": "Search titles…",
+  "toggleLayoutTooltip": "Toggle layout",
+  "dayTheme": "Day theme",
+  "nightTheme": "Night theme",
+  "sortRecent": "Sort: Recent",
+  "sortName": "Sort: Name",
+  "sortDateAdded": "Sort: Date added",
+  "noStorageAccess": "No storage access — tap + to add PDFs.",
+  "noNewBooks": "No new books found",
+  "foundBooks": "{count, plural, =1{Found 1 book} other{Found {count} books}}",
+  "@foundBooks": {
+    "description": "Snackbar after a device scan finds new books",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyNoMatches": "No matches",
+  "emptyTryDifferent": "Try a different title.",
+  "emptyNoBooks": "No books yet",
+  "emptyNoBooksBody": "Tap + to add a PDF, or pull down to scan your device.",
+  "continueReadingTitle": "Continue Reading",
+  "nothingInProgress": "Nothing in progress",
+  "nothingInProgressBody": "Open a book from your Library and it will show up here so you can pick up right where you left off.",
+  "pageOfTotal": "Page {current} of {total}",
+  "@pageOfTotal": {
+    "description": "Reading position label",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "percentValue": "{percent}%",
+  "@percentValue": {
+    "description": "A percentage value",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "details": "Details",
+  "removeFromLibrary": "Remove from library",
+  "detailPages": "Pages",
+  "detailSize": "Size",
+  "detailProgress": "Progress",
+  "detailSource": "Source",
+  "sourceImported": "Imported",
+  "sourceOnDevice": "On device",
+  "addPdf": "Add PDF",
+  "addedBook": "Added \"{title}\"",
+  "@addedBook": {
+    "description": "Snackbar after importing a PDF",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "couldntImport": "Couldn't import that file.",
+  "settingsTitle": "Settings",
+  "appearance": "Appearance",
+  "themeSystem": "System",
+  "themeDay": "Day",
+  "themeNight": "Night",
+  "reading": "Reading",
+  "pageTurnSound": "Page-turn sound",
+  "pageTurnSoundSub": "Play a soft flip sound on each turn",
+  "volume": "Volume",
+  "haptics": "Haptics",
+  "hapticsSub": "Gentle buzz on a completed page turn",
+  "keepScreenOn": "Keep screen on",
+  "keepScreenOnSub": "Prevent the screen sleeping while reading",
+  "readAloudSpeed": "Read-aloud speed",
+  "readAloudVoices": "Read-aloud voices",
+  "readAloudVoicesSub": "Languages, voice quality, and downloads",
+  "defaultPageTint": "Default page tint",
+  "tintPaper": "Paper",
+  "tintSepia": "Sepia",
+  "tintNight": "Night",
+  "defaultPageTintNote": "New books open with this tint. You can still change it per book from the reader.",
+  "librarySection": "Library",
+  "rescanTitle": "Rescan device for PDFs",
+  "rescanSub": "Search Downloads, Documents, and Books for new files",
+  "about": "About",
+  "openSourceLicenses": "Open-source licenses",
+  "appVersion": "v{version}",
+  "@appVersion": {
+    "description": "App version label",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "appLanguage": "App language",
+  "appLanguageSub": "Choose the language for the app's interface",
+  "chooseLanguage": "Choose language",
+  "takeTourAgain": "Take the tour again",
+  "takeTourAgainSub": "Replay the feature highlights",
+  "backToLibrary": "Back to library",
+  "bookmarksTooltip": "Bookmarks",
+  "bookmarkThisPage": "Bookmark this page",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "screenBrightness": "Screen brightness",
+  "pauseReading": "Pause reading",
+  "resumeReading": "Resume reading",
+  "readAloud": "Read aloud",
+  "pause": "Pause",
+  "play": "Play",
+  "stopReading": "Stop reading",
+  "noBookmarks": "No bookmarks yet. Tap the bookmark icon to add one.",
+  "pageNumber": "Page {page}",
+  "@pageNumber": {
+    "description": "A single page label in the bookmarks list",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "bookNotFound": "Book not found",
+  "cantOpenBook": "Can't open this book",
+  "somethingWentWrong": "Something went wrong.",
+  "findPdfsTitle": "Find PDFs on your device",
+  "storageAccessOff": "Storage access is off",
+  "storageAccessOffBody": "Open Settings to let Comfy Reader find PDFs on your device — or just tap + to add them manually.",
+  "openSettingsLabel": "Open settings",
+  "tourLibraryTitle": "Your books",
+  "tourLibraryBody": "All your imported and scanned PDFs live here.",
+  "tourReadingTitle": "Continue reading",
+  "tourReadingBody": "Jump back into books you've started, right where you left off.",
+  "tourSettingsNavTitle": "Settings",
+  "tourSettingsNavBody": "Themes, languages, read-aloud voices, and more.",
+  "tourSearchTitle": "Search",
+  "tourSearchBody": "Find a book by its title.",
+  "tourLayoutTitle": "Grid or list",
+  "tourLayoutBody": "Switch between grid and list views.",
+  "tourAddTitle": "Add a book",
+  "tourAddBody": "Import a PDF from your device to start reading.",
+  "tourThemeTitle": "Appearance",
+  "tourThemeBody": "Switch between Day, Night, or follow your system.",
+  "tourLanguageTitle": "App language",
+  "tourLanguageBody": "Read the app's interface in your preferred language.",
+  "tourVoicesTitle": "Read-aloud voices",
+  "tourVoicesBody": "Pick voices and download languages for read-aloud.",
+  "tourTintTitle": "Comfort tint",
+  "tourTintBody": "Set the default paper tint for new books.",
+  "tourTapTitle": "Show the controls",
+  "tourTapBody": "Tap the middle of the page to show or hide the reader controls.",
+  "tourScrubberTitle": "Jump to a page",
+  "tourScrubberBody": "Drag to preview and jump to any page.",
+  "tourReadAloudTitle": "Read aloud",
+  "tourReadAloudBody": "Have the book read to you out loud.",
+  "tourReaderTintTitle": "Comfort tint",
+  "tourReaderTintBody": "Cycle paper, sepia, and night tints.",
+  "tourBrightnessTitle": "Brightness",
+  "tourBrightnessBody": "Adjust screen brightness without leaving the book.",
+  "tourBookmarkTitle": "Bookmark",
+  "tourBookmarkBody": "Save your place and find it again later.",
+  "readScannedBooks": "Read scanned books",
+  "readScannedBooksSub": "Use on-device OCR to read pages that have no selectable text",
+  "@readScannedBooks": {
+    "description": "Toggle: OCR scanned (image-only) PDF pages for read-aloud"
+  }
+}

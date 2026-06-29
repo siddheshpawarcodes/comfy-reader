@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/dimens.dart';
 import '../../../providers/read_aloud_controller.dart';
 import '../../../providers/settings_provider.dart';
@@ -19,6 +20,7 @@ class ReadAloudBar extends StatelessWidget {
 
     final settings = context.watch<SettingsProvider>();
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: Dimens.space2),
@@ -39,7 +41,7 @@ class ReadAloudBar extends StatelessWidget {
                 ),
               ),
               IconButton(
-                tooltip: readAloud.isPlaying ? 'Pause' : 'Play',
+                tooltip: readAloud.isPlaying ? l10n.pause : l10n.play,
                 icon: Icon(
                   readAloud.isPlaying
                       ? Icons.pause_rounded
@@ -48,7 +50,7 @@ class ReadAloudBar extends StatelessWidget {
                 onPressed: readAloud.toggle,
               ),
               IconButton(
-                tooltip: 'Stop reading',
+                tooltip: l10n.stopReading,
                 icon: const Icon(Icons.stop_rounded),
                 onPressed: readAloud.stop,
               ),
@@ -59,7 +61,7 @@ class ReadAloudBar extends StatelessWidget {
               const Icon(Icons.slow_motion_video_rounded, size: 18),
               Expanded(
                 child: Semantics(
-                  label: 'Read-aloud speed',
+                  label: l10n.readAloudSpeed,
                   child: Slider(
                     value: settings.speechRate,
                     divisions: 10,

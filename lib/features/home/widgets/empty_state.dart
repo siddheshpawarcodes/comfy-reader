@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/dimens.dart';
 
 /// Friendly empty states: an empty library vs. no search matches.
@@ -13,10 +14,10 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final title = isSearch ? 'No matches' : 'No books yet';
-    final subtitle = isSearch
-        ? 'Try a different title.'
-        : 'Tap + to add a PDF, or pull down to scan your device.';
+    final l10n = context.l10n;
+    final title = isSearch ? l10n.emptyNoMatches : l10n.emptyNoBooks;
+    final subtitle =
+        isSearch ? l10n.emptyTryDifferent : l10n.emptyNoBooksBody;
     return Padding(
       padding: const EdgeInsets.all(Dimens.space8),
       child: Column(

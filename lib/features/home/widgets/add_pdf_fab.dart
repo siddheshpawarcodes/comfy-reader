@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../providers/library_provider.dart';
+import '../../../shared/navigation.dart';
 
 /// Accent FAB that imports a PDF via the system picker, then offers to open it.
 class AddPdfFab extends StatefulWidget {
@@ -22,23 +24,26 @@ class _AddPdfFabState extends State<AddPdfFab> {
     final library = context.read<LibraryProvider>();
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
     try {
       final book = await library.importFromPicker();
       if (!mounted) return;
       if (book == null) return; // cancelled
       messenger.showSnackBar(
         SnackBar(
-          content: Text('Added "${book.title}"'),
+          content: Text(l10n.addedBook(book.title)),
           action: SnackBarAction(
-            label: 'Open',
-            onPressed: () => router.push('/reader/${book.id}'),
+            label: l10n.open,
+            onPressed: () {
+              if (!isReaderRoute(router)) router.push('/reader/${book.id}');
+            },
           ),
         ),
       );
     } catch (_) {
       if (!mounted) return;
       messenger.showSnackBar(
-        const SnackBar(content: Text("Couldn't import that file.")),
+        SnackBar(content: Text(l10n.couldntImport)),
       );
     } finally {
       if (mounted) setState(() => _importing = false);
@@ -56,7 +61,7 @@ class _AddPdfFabState extends State<AddPdfFab> {
               child: const CircularProgressIndicator(strokeWidth: 2),
             )
           : const Icon(Icons.add_rounded),
-      label: const Text('Add PDF'),
+      label: Text(context.l10n.addPdf),
     );
   }
 }
