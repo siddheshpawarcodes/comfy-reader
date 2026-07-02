@@ -1,36 +1,13 @@
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/constants/read_aloud_languages.dart';
 import '../../core/theme/dimens.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/tts_platform.dart';
 import '../../services/tts_service.dart';
-
-/// A read-aloud language we offer voice management for.
-class _Language {
-  const _Language(this.locale, this.name, this.sample);
-
-  final String locale; // BCP-47, e.g. hi-IN
-  final String name;
-  final String sample; // short preview phrase in this language's script
-}
-
-/// The languages read-aloud targets. Hindi and Marathi share the Devanagari
-/// script, so both appear; which one detection uses is the Devanagari toggle.
-const List<_Language> _languages = [
-  _Language('en-US', 'English', 'This is a sample of the reading voice.'),
-  _Language('hi-IN', 'Hindi', 'नमस्ते, यह पढ़ने की आवाज़ का एक नमूना है।'),
-  _Language('mr-IN', 'Marathi', 'नमस्कार, हा वाचनाच्या आवाजाचा एक नमुना आहे.'),
-  _Language('bn-IN', 'Bengali', 'নমস্কার, এটি পড়ার কণ্ঠস্বরের একটি নমুনা।'),
-  _Language('gu-IN', 'Gujarati', 'નમસ્તે, આ વાંચન અવાજનો એક નમૂનો છે.'),
-  _Language('pa-IN', 'Punjabi', 'ਸਤ ਸ੍ਰੀ ਅਕਾਲ, ਇਹ ਪੜ੍ਹਨ ਦੀ ਆਵਾਜ਼ ਦਾ ਨਮੂਨਾ ਹੈ।'),
-  _Language('or-IN', 'Odia', 'ନମସ୍କାର, ଏହା ପଠନ ସ୍ୱରର ଏକ ନମୁନା।'),
-  _Language('ta-IN', 'Tamil', 'வணக்கம், இது வாசிப்பு குரலின் ஒரு மாதிரி.'),
-  _Language('te-IN', 'Telugu', 'నమస్కారం, ఇది చదివే స్వరం యొక్క ఒక నమూనా.'),
-  _Language('kn-IN', 'Kannada', 'ನಮಸ್ಕಾರ, ಇದು ಓದುವ ಧ್ವನಿಯ ಒಂದು ಮಾದರಿ.'),
-  _Language('ml-IN', 'Malayalam', 'നമസ്കാരം, ഇത് വായനാ ശബ്ദത്തിന്റെ ഒരു മാതൃകയാണ്.'),
-];
 
 /// Manages read-aloud languages and voices: pick the language for Devanagari,
 /// choose/preview a voice per language, and download more offline voices.
@@ -67,7 +44,7 @@ class _VoicesScreenState extends State<VoicesScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     await _tts.voices(refresh: true); // re-read after a possible install
-    for (final lang in _languages) {
+    for (final lang in readAloudLanguages) {
       _voices[lang.locale] = await _tts.voicesForLanguage(lang.locale);
       _available[lang.locale] = _voices[lang.locale]!.isNotEmpty ||
           await _tts.isLanguageAvailable(lang.locale);
@@ -108,28 +85,30 @@ class _VoicesScreenState extends State<VoicesScreen> {
     );
   }
 
-  Future<void> _preview(_Language lang) async {
-    final selected = context.read<SettingsProvider>().voiceByLanguage[lang.locale];
-    await _tts.applyLanguage(lang.locale, preferredVoiceName: selected);
+  /// Previews [lang] with a specific candidate [voiceName] (null = engine's
+  /// automatic pick) without touching the saved preference — lets the user
+  /// audition a voice from inside the picker dialog before committing to it.
+  Future<void> _previewVoice(ReadAloudLanguage lang, String? voiceName) async {
+    await _tts.applyLanguage(lang.locale, preferredVoiceName: voiceName);
     await _tts.speak(lang.sample);
   }
 
-  Future<void> _pickVoice(_Language lang) async {
+  Future<void> _pickVoice(ReadAloudLanguage lang) async {
     final settings = context.read<SettingsProvider>();
     final voices = _voices[lang.locale] ?? const [];
     final current = settings.voiceByLanguage[lang.locale];
 
-    final result = await showModalBottomSheet<String?>(
+    final result = await showDialog<String?>(
       context: context,
-      showDragHandle: true,
-      builder: (context) => _VoicePickerSheet(
+      builder: (context) => _VoicePickerDialog(
         language: lang.name,
         voices: voices,
         selected: current,
+        onPreview: (voiceName) => _previewVoice(lang, voiceName),
       ),
     );
-    // The sheet returns the chosen voice name, or the sentinel '' for
-    // Automatic. `null` means dismissed without choosing — leave unchanged.
+    // The dialog returns the chosen voice name, or the sentinel '' for
+    // Automatic. `null` means it was cancelled — leave unchanged.
     if (result == null) return;
     await settings.setVoiceForLanguage(lang.locale, result.isEmpty ? null : result);
     if (mounted) setState(() {});
@@ -244,134 +223,186 @@ class _VoicesScreenState extends State<VoicesScreen> {
                   ),
 
                 const _SectionHeader('Languages'),
-                for (final lang in _languages)
-                  _LanguageTile(
-                    language: lang,
-                    voices: _voices[lang.locale] ?? const [],
-                    available: _available[lang.locale] ?? false,
-                    selectedVoice: settings.voiceByLanguage[lang.locale],
-                    onPreview: () => _preview(lang),
-                    onTap: () => _pickVoice(lang),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Dimens.space4),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: readAloudLanguages.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: Dimens.space3,
+                      crossAxisSpacing: Dimens.space3,
+                      childAspectRatio: 1,
+                    ),
+                    itemBuilder: (context, i) {
+                      final lang = readAloudLanguages[i];
+                      return _LanguageTile(
+                        language: lang,
+                        voices: _voices[lang.locale] ?? const [],
+                        available: _available[lang.locale] ?? false,
+                        selectedVoice: settings.voiceByLanguage[lang.locale],
+                        onTap: () => _pickVoice(lang),
+                      );
+                    },
                   ),
+                ),
               ],
             ),
     );
   }
 }
 
-/// One language row: name, status (installed/needs download/unavailable),
-/// selected-voice summary, and a preview button.
+/// One language as a square tile: script symbol, name, and a status-colored
+/// hint. Tapping opens the voice picker dialog (disabled until the language
+/// has at least one installed voice).
 class _LanguageTile extends StatelessWidget {
   const _LanguageTile({
     required this.language,
     required this.voices,
     required this.available,
     required this.selectedVoice,
-    required this.onPreview,
     required this.onTap,
   });
 
-  final _Language language;
+  final ReadAloudLanguage language;
   final List<TtsVoice> voices;
   final bool available;
   final String? selectedVoice;
-  final VoidCallback onPreview;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final installed = voices.isNotEmpty;
     final hasOffline = voices.any((v) => v.offline);
 
+    final Color accent;
     final String status;
-    final Color statusColor;
     if (installed) {
-      status = hasOffline
-          ? (selectedVoice != null
-              ? 'Voice: $selectedVoice'
-              : '${voices.length} voice${voices.length == 1 ? '' : 's'} · auto')
-          : 'Online voice only — download for offline';
-      statusColor = hasOffline
-          ? theme.colorScheme.onSurfaceVariant
-          : theme.colorScheme.tertiary;
+      accent = hasOffline ? scheme.primary : scheme.tertiary;
+      status = selectedVoice != null ? 'Voice set' : (hasOffline ? 'Auto' : 'Online');
     } else if (available) {
-      status = 'Available — tap Download above to install';
-      statusColor = theme.colorScheme.tertiary;
+      accent = scheme.tertiary;
+      status = 'Download';
     } else {
-      status = 'Not available on this device';
-      statusColor = theme.colorScheme.error;
+      accent = scheme.error;
+      status = 'Unavailable';
     }
 
-    return ListTile(
-      title: Text(language.name),
-      subtitle: Text(
-        status,
-        style: theme.textTheme.bodySmall?.copyWith(color: statusColor),
+    return Material(
+      color: scheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(Dimens.radiusSmall),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Dimens.radiusSmall),
+        onTap: installed ? onTap : null,
+        child: Padding(
+          padding: const EdgeInsets.all(Dimens.space2),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                language.symbol,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Dimens.space1.verticalSpace,
+              Text(
+                language.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelMedium,
+              ),
+              Text(
+                status,
+                style: theme.textTheme.labelSmall?.copyWith(color: accent),
+              ),
+            ],
+          ),
+        ),
       ),
-      trailing: installed
-          ? IconButton(
-              tooltip: 'Preview',
-              icon: const Icon(Icons.play_circle_outline_rounded),
-              onPressed: onPreview,
-            )
-          : Icon(
-              available ? Icons.download_for_offline_outlined : Icons.block_rounded,
-              color: statusColor,
-            ),
-      onTap: installed ? onTap : null,
     );
   }
 }
 
-/// Bottom sheet to choose a voice for a language. Returns the chosen voice
-/// name, `''` for Automatic, or `null` if dismissed.
-class _VoicePickerSheet extends StatelessWidget {
-  const _VoicePickerSheet({
+/// Dialog to choose a voice for a language: a checkbox list with a preview
+/// button per voice so the user can audition before committing. Returns the
+/// chosen voice name, `''` for Automatic, or `null` if cancelled.
+class _VoicePickerDialog extends StatefulWidget {
+  const _VoicePickerDialog({
     required this.language,
     required this.voices,
     required this.selected,
+    required this.onPreview,
   });
 
   final String language;
   final List<TtsVoice> voices;
   final String? selected;
+  final Future<void> Function(String? voiceName) onPreview;
+
+  @override
+  State<_VoicePickerDialog> createState() => _VoicePickerDialogState();
+}
+
+class _VoicePickerDialogState extends State<_VoicePickerDialog> {
+  late String _selected = widget.selected ?? '';
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return SafeArea(
-      child: RadioGroup<String>(
-        groupValue: selected ?? '',
-        onChanged: (v) => Navigator.of(context).pop(v),
+    return AlertDialog(
+      title: Text('${widget.language} voice'),
+      content: SizedBox(
+        width: double.maxFinite,
         child: ListView(
           shrinkWrap: true,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Dimens.space4,
-                0,
-                Dimens.space4,
-                Dimens.space2,
+            CheckboxListTile(
+              controlAffinity: ListTileControlAffinity.leading,
+              value: _selected == '',
+              title: const Text('Automatic (best available)'),
+              onChanged: (_) => setState(() => _selected = ''),
+              secondary: IconButton(
+                tooltip: 'Preview',
+                icon: const Icon(Icons.play_circle_outline_rounded),
+                onPressed: () => widget.onPreview(null),
               ),
-              child: Text('$language voice', style: theme.textTheme.titleMedium),
             ),
-            const RadioListTile<String>(
-              value: '',
-              title: Text('Automatic (best available)'),
-            ),
-            for (final voice in voices)
-              RadioListTile<String>(
-                value: voice.name,
+            for (final voice in widget.voices)
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _selected == voice.name,
                 title: Text(voice.name),
                 subtitle: Text(
-                  '${voice.offline ? 'Offline' : 'Online'} · quality ${voice.quality}',
+                  '${voice.offline ? 'Offline (recommended)' : 'Online'} · '
+                  'quality ${voice.quality}',
                   style: theme.textTheme.bodySmall,
+                ),
+                onChanged: (_) => setState(() => _selected = voice.name),
+                secondary: IconButton(
+                  tooltip: 'Preview',
+                  icon: const Icon(Icons.play_circle_outline_rounded),
+                  onPressed: () => widget.onPreview(voice.name),
                 ),
               ),
           ],
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_selected),
+          child: const Text('Select'),
+        ),
+      ],
     );
   }
 }

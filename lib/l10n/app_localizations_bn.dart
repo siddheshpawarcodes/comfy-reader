@@ -39,6 +39,18 @@ class AppLocalizationsBn extends AppLocalizations {
   String get goBack => 'ফিরে যান';
 
   @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get exit => 'Exit';
+
+  @override
+  String get quitAppTitle => 'Quit Comfy Reader?';
+
+  @override
+  String get quitAppMessage => 'Are you sure you want to close the app?';
+
+  @override
   String get libraryTitle => 'লাইব্রেরি';
 
   @override

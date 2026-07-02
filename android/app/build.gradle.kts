@@ -35,10 +35,21 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // google_mlkit_text_recognition declares all script recognizers as
+    // compileOnly; the app must add the ones it actually uses (see
+    // lib/services/ocr_service.dart) so they're bundled at runtime.
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/l10n/l10n_ext.dart';
+import '../../shared/widgets/quit_confirmation_dialog.dart';
 import '../settings/settings_screen.dart';
 import 'continue_reading_tab.dart';
 import 'library_tab.dart';
@@ -29,6 +31,12 @@ class _HomeShellState extends State<HomeShell> {
     setState(() => _index = i);
   }
 
+  Future<void> _onPopInvoked(bool didPop, Object? result) async {
+    if (didPop) return;
+    final shouldQuit = await QuitConfirmationDialog.show(context);
+    if (shouldQuit) SystemNavigator.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -40,46 +48,53 @@ class _HomeShellState extends State<HomeShell> {
       const ContinueReadingTab(),
       SettingsScreen(isActive: _index == 2),
     ];
-    return Scaffold(
-      // Wrap each tab in HeroMode so only the visible tab's heroes can take
-      // part in a flight. The IndexedStack keeps every tab mounted, so without
-      // this an offstage tab's cover hero could fly when opening a book from a
-      // different tab (wrong source rect) and destabilize the transition.
-      body: IndexedStack(
-        index: _index,
-        children: [
-          for (var i = 0; i < tabs.length; i++)
-            HeroMode(enabled: _index == i, child: tabs[i]),
-        ],
-      ),
-      // A hairline divider keeps the flat (elevation-0) nav bar visually
-      // separated from the body content above it.
-      bottomNavigationBar: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: scheme.onSurface.withValues(alpha: 0.08)),
-          ),
-        ),
-        child: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: _onSelect,
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.local_library_outlined),
-              selectedIcon: const Icon(Icons.local_library_rounded),
-              label: l10n.navLibrary,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.auto_stories_outlined),
-              selectedIcon: const Icon(Icons.auto_stories_rounded),
-              label: l10n.navReading,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.settings_outlined),
-              selectedIcon: const Icon(Icons.settings_rounded),
-              label: l10n.navSettings,
-            ),
+    return PopScope(
+      // This is the app's root screen (no back stack beneath it), so an
+      // intercepted pop here means the user is trying to leave the app —
+      // confirm before letting SystemNavigator.pop() close it.
+      canPop: false,
+      onPopInvokedWithResult: _onPopInvoked,
+      child: Scaffold(
+        // Wrap each tab in HeroMode so only the visible tab's heroes can take
+        // part in a flight. The IndexedStack keeps every tab mounted, so without
+        // this an offstage tab's cover hero could fly when opening a book from a
+        // different tab (wrong source rect) and destabilize the transition.
+        body: IndexedStack(
+          index: _index,
+          children: [
+            for (var i = 0; i < tabs.length; i++)
+              HeroMode(enabled: _index == i, child: tabs[i]),
           ],
+        ),
+        // A hairline divider keeps the flat (elevation-0) nav bar visually
+        // separated from the body content above it.
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: scheme.onSurface.withValues(alpha: 0.08)),
+            ),
+          ),
+          child: NavigationBar(
+            selectedIndex: _index,
+            onDestinationSelected: _onSelect,
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.local_library_outlined),
+                selectedIcon: const Icon(Icons.local_library_rounded),
+                label: l10n.navLibrary,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.auto_stories_outlined),
+                selectedIcon: const Icon(Icons.auto_stories_rounded),
+                label: l10n.navReading,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.settings_outlined),
+                selectedIcon: const Icon(Icons.settings_rounded),
+                label: l10n.navSettings,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -885,6 +885,13 @@ class _RealisticFlipbookState extends State<RealisticFlipbook>
     return _pageStaticProvider(pageData, hiRes: hiRes);
   }
 
+  void _precacheFlipTarget(int page) {
+    final provider = _pageProvider(page);
+    if (provider != null) {
+      unawaited(_precache(provider));
+    }
+  }
+
   ui.Image? _pageRawImage(int page) {
     if (!_pageIsWidget(page)) {
       return null;
@@ -1514,6 +1521,9 @@ class _RealisticFlipbookState extends State<RealisticFlipbook>
         !_hasRenderablePage(backPage)) {
       return;
     }
+
+    _precacheFlipTarget(frontPage);
+    _precacheFlipTarget(backPage);
 
     final criticalPages = _criticalPagesNeedingTexture(frontPage, backPage);
     if (criticalPages.isNotEmpty) {

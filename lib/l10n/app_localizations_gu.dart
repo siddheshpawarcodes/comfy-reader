@@ -39,6 +39,18 @@ class AppLocalizationsGu extends AppLocalizations {
   String get goBack => 'પાછા જાઓ';
 
   @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get exit => 'Exit';
+
+  @override
+  String get quitAppTitle => 'Quit Comfy Reader?';
+
+  @override
+  String get quitAppMessage => 'Are you sure you want to close the app?';
+
+  @override
   String get libraryTitle => 'લાઇબ્રેરી';
 
   @override

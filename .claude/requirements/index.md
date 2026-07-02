@@ -14,7 +14,7 @@ _None yet._
 
 ## Enhancements
 
-_None yet._
+- [Read-aloud: reconstruct missing spaces between glued words](enhancements/read-aloud-glued-word-spacing.md) — PENDING. Letter-spacing/matra garbling and link-reading are already fixed (`speech_text_normalizer.dart`); still open: two genuinely-adjacent words extracted with zero separator (needs char-bbox gap detection in `pdf_service.dart`).
 
 ## Architectural Decisions
 

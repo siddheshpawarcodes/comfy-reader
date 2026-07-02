@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../core/utils/app_log.dart';
+import '../core/utils/speech_text_normalizer.dart';
 import 'pdf_service.dart';
 
 /// On-device OCR fallback for read-aloud on scanned PDFs — pages that have no
@@ -104,13 +105,9 @@ class OcrService {
     _cache[key] = text;
   }
 
-  /// Collapses OCR line breaks into speakable prose (mirrors PdfService's
-  /// `_normalizeForSpeech`).
-  static String _normalize(String raw) => raw
-      .replaceAll(RegExp(r'-\n'), '') // join hyphenated wraps
-      .replaceAll('\n', ' ')
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .trim();
+  /// Collapses OCR line breaks into speakable prose (shared with
+  /// [PdfService.extractPageText] via [normalizeForSpeech]).
+  static String _normalize(String raw) => normalizeForSpeech(raw);
 
   /// Frees native recognizer resources.
   Future<void> dispose() async {

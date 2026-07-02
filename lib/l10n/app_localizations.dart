@@ -172,6 +172,30 @@ abstract class AppLocalizations {
   /// **'Go back'**
   String get goBack;
 
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @exit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exit;
+
+  /// No description provided for @quitAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quit Comfy Reader?'**
+  String get quitAppTitle;
+
+  /// No description provided for @quitAppMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to close the app?'**
+  String get quitAppMessage;
+
   /// No description provided for @libraryTitle.
   ///
   /// In en, this message translates to:

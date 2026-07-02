@@ -95,6 +95,11 @@ class ReadAloudController extends ChangeNotifier {
   static const int _emptyPageGiveUp = 8;
 
   ReadAloudState _state = ReadAloudState.idle;
+
+  /// One-off override for this session: when set, every page is read in this
+  /// locale instead of the per-page auto-detected one. Not persisted — reset
+  /// by picking "Auto-detect" again, or simply lost when the reader closes.
+  String? _forcedLocale;
   List<String> _chunks = const [];
   int _chunkIndex = 0;
   int _speakingPage = -1;
@@ -118,6 +123,9 @@ class ReadAloudController extends ChangeNotifier {
 
   /// Whether the playback bar should be shown (anything but fully idle).
   bool get isActive => _state != ReadAloudState.idle;
+
+  /// The session-override locale, or null when following auto-detection.
+  String? get forcedLocale => _forcedLocale;
 
   /// User-facing status line for the playback bar.
   String get statusLabel => switch (_state) {
@@ -188,6 +196,20 @@ class ReadAloudController extends ChangeNotifier {
   /// Apply a new speech rate live (the slider also persists it via settings).
   void setRate(double rate) => _tts.setRate(rate);
 
+  /// Forces every page to be read in [locale] instead of the auto-detected
+  /// one; pass null to resume auto-detection. Re-applies immediately if a
+  /// page is already loading, playing, or paused.
+  void setForcedLocale(String? locale) {
+    if (_forcedLocale == locale) return;
+    _forcedLocale = locale;
+    notifyListeners();
+    if (_state == ReadAloudState.playing ||
+        _state == ReadAloudState.paused ||
+        _state == ReadAloudState.loading) {
+      _speakPage(reader.currentPage);
+    }
+  }
+
   // ---- Orchestration ----
 
   void _onReaderChanged() {
@@ -238,19 +260,17 @@ class ReadAloudController extends ChangeNotifier {
     }
     // Tell the engine which language this page is in (and the user's preferred
     // voice for it) before speaking — otherwise non-English pages are read with
-    // an English voice and come out garbled.
-    if (autoDetectLanguage) {
-      final script = LanguageDetector.detect(body);
-      final locale = LanguageDetector.languageFor(
-        script,
-        devanagariIsMarathi: devanagariLanguage == 'mr-IN',
-      );
+    // an English voice and come out garbled. A forced session locale wins over
+    // auto-detection outright (it's what the user told us the text is).
+    if (_forcedLocale != null || autoDetectLanguage) {
+      final locale = _forcedLocale ??
+          LanguageDetector.languageFor(
+            LanguageDetector.detect(body),
+            devanagariIsMarathi: devanagariLanguage == 'mr-IN',
+          );
       // Marathi shares Devanagari with Hindi; if the device has no offline
       // Marathi voice, read it with the Hindi voice rather than a broken one.
-      final fallback =
-          (script == ReadingScript.devanagari && locale == 'mr-IN')
-              ? 'hi-IN'
-              : null;
+      final fallback = locale == 'mr-IN' ? 'hi-IN' : null;
       await _tts.applyLanguage(
         locale,
         preferredVoiceName: voiceByLanguage[locale],

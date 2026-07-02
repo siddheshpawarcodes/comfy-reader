@@ -9,6 +9,7 @@ import 'package:pdfx/pdfx.dart';
 
 import '../core/utils/app_log.dart';
 import '../core/utils/app_paths.dart';
+import '../core/utils/speech_text_normalizer.dart';
 import '../models/book_model.dart';
 
 /// Outcome of probing whether a PDF can be opened for reading.
@@ -137,7 +138,7 @@ class PdfService {
       doc = await pdfrx.PdfDocument.openFile(path);
       if (pageIndex < 0 || pageIndex >= doc.pages.length) return '';
       final raw = await doc.pages[pageIndex].loadText();
-      return _normalizeForSpeech(raw?.fullText ?? '');
+      return normalizeForSpeech(raw?.fullText ?? '');
     } catch (e, st) {
       AppLog.warning('extractPageText($pageIndex) failed for $path',
           name: 'PdfService', error: e, stackTrace: st);
@@ -145,19 +146,6 @@ class PdfService {
     } finally {
       await doc?.dispose();
     }
-  }
-
-  /// Flattens a page's raw text into a clause that reads naturally aloud:
-  /// stitches hyphenated line breaks, turns layout newlines into spaces, and
-  /// collapses whitespace runs. Sentence punctuation is preserved so the
-  /// read-aloud controller can still chunk on it.
-  static String _normalizeForSpeech(String raw) {
-    return raw
-        .replaceAll('\r\n', '\n')
-        .replaceAll(RegExp(r'-\n'), '') // join hyphenated wrap: "exam-\nple"
-        .replaceAll('\n', ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
   }
 
   /// Generates (or reuses) a cover for [book] from page 1. Returns the cover
