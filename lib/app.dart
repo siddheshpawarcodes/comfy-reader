@@ -11,6 +11,7 @@ import 'providers/library_provider.dart';
 import 'providers/settings_provider.dart';
 import 'services/settings_service.dart';
 import 'services/storage_service.dart';
+import 'services/tour_service.dart';
 import 'shared/widgets/max_text_scale.dart';
 
 /// Root app: wires providers and the themed router. Storage/audio are already
@@ -58,6 +59,7 @@ class ComfyReaderApp extends StatelessWidget {
                   // Scroll a target into view when it sits below the fold
                   // (e.g. the lower Settings cards) before highlighting it.
                   enableAutoScroll: true,
+                  onFinish: TourService.instance.handleFinish,
                   builder: (context) =>
                       MaxTextScale(child: child ?? const SizedBox.shrink()),
                 ),

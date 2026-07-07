@@ -128,6 +128,10 @@
   "tourBrightnessBody": "પુસ્તક છોડ્યા વગર સ્ક્રીન બ્રાઇટનેસ ગોઠવો.",
   "tourBookmarkTitle": "બુકમાર્ક",
   "tourBookmarkBody": "તમારી જગ્યા સાચવો અને પછી ફરી શોધો.",
+  "tourSwipeTitle": "પાનું ફેરવવું",
+  "tourSwipeShortBody": "ટૂંકું સ્વાઇપ પાછું આવે છે, પાનું ફેરવાતું નથી.",
+  "tourSwipeLongBody": "લાંબું સ્વાઇપ પાનું ફેરવે છે.",
+  "tourSwipeFastBody": "ઝડપી સ્વાઇપ પણ પાનું ફેરવે છે.",
   "readScannedBooks": "સ્કેન કરેલી ચોપડીઓ વાંચો",
   "readScannedBooksSub": "પસંદ કરી શકાય તેવો ટેક્સ્ટ ન હોય તેવા પાનાં વાંચવા ઉપકરણ OCR વાપરો"
 }

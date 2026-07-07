@@ -26,14 +26,14 @@ codebase for **Android** (primary) and **iOS**.
 
 ## ✨ Highlights
 
-| | |
-|---|---|
-| 📖 **Real page-turns** | A vendored 3D page-curl engine bends each page in real time as you drag — complete with a soft paper-flip sound and a gentle haptic on release. |
-| 🗂️ **Auto-discovering library** | Scans your device for PDFs and renders a real cover from each book's first page, throttled so scrolling stays buttery. |
-| ☕ **Comfort tints** | Switch any book between **Paper**, **Sepia**, and **Night** — Night inverts luminance so white pages become easy-on-the-eyes dark. |
-| 🔖 **Resume, bookmarks & go-to** | Always reopens where you left off, with a progress scrubber, per-page bookmarks, and a “Continue Reading” shelf. |
-| 🎧 **Read-aloud** | Offline text-to-speech using the OS-native engines — no API keys, no network. |
-| 🌗 **Brightness & wakelock** | In-reader brightness slider and an optional keep-screen-on while you read. |
+|                                  |                                                                                                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| 📖 **Real page-turns**           | A vendored 3D page-curl engine bends each page in real time as you drag — complete with a soft paper-flip sound and a gentle haptic on release. |
+| 🗂️ **Auto-discovering library**  | Scans your device for PDFs and renders a real cover from each book's first page, throttled so scrolling stays buttery.                          |
+| ☕ **Comfort tints**             | Switch any book between **Paper**, **Sepia**, and **Night** — Night inverts luminance so white pages become easy-on-the-eyes dark.              |
+| 🔖 **Resume, bookmarks & go-to** | Always reopens where you left off, with a progress scrubber, per-page bookmarks, and a “Continue Reading” shelf.                                |
+| 🎧 **Read-aloud**                | Offline text-to-speech using the OS-native engines — no API keys, no network.                                                                   |
+| 🌗 **Brightness & wakelock**     | In-reader brightness slider and an optional keep-screen-on while you read.                                                                      |
 
 ---
 
@@ -209,3 +209,14 @@ Placeholder brand art ships today; final art lands in Phase 7.1. After replacing
 dart run flutter_launcher_icons        # app/launcher icons
 dart run flutter_native_splash:create  # native splash (no white flash)
 ```
+
+ <!-- 
+
+
+
+flutter clean              
+flutter pub get
+flutter build apk --release 
+
+
+-->

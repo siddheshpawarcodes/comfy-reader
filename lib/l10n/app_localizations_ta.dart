@@ -442,6 +442,19 @@ class AppLocalizationsTa extends AppLocalizations {
       'உங்கள் இடத்தைச் சேமித்து பின்னர் மீண்டும் கண்டறி.';
 
   @override
+  String get tourSwipeTitle => 'பக்கம் புரட்டுதல்';
+
+  @override
+  String get tourSwipeShortBody =>
+      'குறுகிய ஸ்வைப் திரும்பிவிடும், பக்கம் புரளாது.';
+
+  @override
+  String get tourSwipeLongBody => 'நீண்ட ஸ்வைப் பக்கத்தைப் புரட்டும்.';
+
+  @override
+  String get tourSwipeFastBody => 'வேகமான ஸ்வைப்பும் பக்கத்தைப் புரட்டும்.';
+
+  @override
   String get readScannedBooks => 'ஸ்கேன் செய்த புத்தகங்களைப் படிக்கவும்';
 
   @override

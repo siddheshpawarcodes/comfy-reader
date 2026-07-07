@@ -438,6 +438,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get tourBookmarkBody => 'अपनी जगह सहेजें और बाद में फिर पाएँ।';
 
   @override
+  String get tourSwipeTitle => 'पेज पलटना';
+
+  @override
+  String get tourSwipeShortBody =>
+      'छोटा स्वाइप वापस आ जाता है, पेज नहीं पलटता।';
+
+  @override
+  String get tourSwipeLongBody => 'लंबा स्वाइप पेज पलट देता है।';
+
+  @override
+  String get tourSwipeFastBody => 'तेज़ स्वाइप भी पेज पलट देता है।';
+
+  @override
   String get readScannedBooks => 'स्कैन की गई किताबें पढ़ें';
 
   @override

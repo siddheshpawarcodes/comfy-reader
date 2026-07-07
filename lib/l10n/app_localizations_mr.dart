@@ -434,6 +434,18 @@ class AppLocalizationsMr extends AppLocalizations {
   String get tourBookmarkBody => 'तुमची जागा जतन करा आणि नंतर पुन्हा शोधा.';
 
   @override
+  String get tourSwipeTitle => 'पान उलटणे';
+
+  @override
+  String get tourSwipeShortBody => 'छोटा स्वाइप मागे येतो, पान उलटत नाही.';
+
+  @override
+  String get tourSwipeLongBody => 'मोठा स्वाइप पान उलटवतो.';
+
+  @override
+  String get tourSwipeFastBody => 'जलद स्वाइपनेही पान उलटते.';
+
+  @override
   String get readScannedBooks => 'स्कॅन केलेली पुस्तके वाचा';
 
   @override

@@ -432,6 +432,19 @@ class AppLocalizationsGu extends AppLocalizations {
   String get tourBookmarkBody => 'તમારી જગ્યા સાચવો અને પછી ફરી શોધો.';
 
   @override
+  String get tourSwipeTitle => 'પાનું ફેરવવું';
+
+  @override
+  String get tourSwipeShortBody =>
+      'ટૂંકું સ્વાઇપ પાછું આવે છે, પાનું ફેરવાતું નથી.';
+
+  @override
+  String get tourSwipeLongBody => 'લાંબું સ્વાઇપ પાનું ફેરવે છે.';
+
+  @override
+  String get tourSwipeFastBody => 'ઝડપી સ્વાઇપ પણ પાનું ફેરવે છે.';
+
+  @override
   String get readScannedBooks => 'સ્કેન કરેલી ચોપડીઓ વાંચો';
 
   @override

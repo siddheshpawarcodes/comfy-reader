@@ -92,6 +92,7 @@ class ReaderProvider extends ChangeNotifier {
 
   // ---- Overlay (with auto-hide) ----
   Timer? _overlayTimer;
+  bool _autoHideSuspended = false;
 
   void toggleOverlay() {
     _overlayVisible = !_overlayVisible;
@@ -102,9 +103,24 @@ class ReaderProvider extends ChangeNotifier {
   /// Resets the auto-hide timer (call when the user interacts with the bars).
   void keepOverlayAlive() => _scheduleAutoHide();
 
+  /// Suspends the auto-hide timer so the overlay stays visible no matter how
+  /// long the user lingers — used while the coach-mark tour is pointing at
+  /// controls inside it, so the bar it's highlighting can't vanish mid-tour.
+  void suspendAutoHide() {
+    _autoHideSuspended = true;
+    _overlayTimer?.cancel();
+  }
+
+  /// Lifts the suspension and restarts the countdown fresh, as if the user
+  /// had just interacted with the overlay.
+  void resumeAutoHide() {
+    _autoHideSuspended = false;
+    _scheduleAutoHide();
+  }
+
   void _scheduleAutoHide() {
     _overlayTimer?.cancel();
-    if (!_overlayVisible) return;
+    if (!_overlayVisible || _autoHideSuspended) return;
     _overlayTimer = Timer(AppDurations.overlayAutoHide, () {
       _overlayVisible = false;
       notifyListeners();

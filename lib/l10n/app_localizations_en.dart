@@ -436,6 +436,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tourBookmarkBody => 'Save your place and find it again later.';
 
   @override
+  String get tourSwipeTitle => 'Turning pages';
+
+  @override
+  String get tourSwipeShortBody =>
+      'A short swipe springs back — the page stays put.';
+
+  @override
+  String get tourSwipeLongBody => 'A long swipe turns the page.';
+
+  @override
+  String get tourSwipeFastBody => 'A quick flick turns the page too.';
+
+  @override
   String get readScannedBooks => 'Read scanned books';
 
   @override

@@ -128,6 +128,10 @@
   "tourBrightnessBody": "ಪುಸ್ತಕ ಬಿಡದೆ ಪರದೆ ಪ್ರಕಾಶ ಹೊಂದಿಸಿ.",
   "tourBookmarkTitle": "ಬುಕ್‌ಮಾರ್ಕ್",
   "tourBookmarkBody": "ನಿಮ್ಮ ಸ್ಥಳ ಉಳಿಸಿ ಮತ್ತೆ ಸುಲಭವಾಗಿ ಹುಡುಕಿ.",
+  "tourSwipeTitle": "ಪುಟ ತಿರುಗಿಸುವುದು",
+  "tourSwipeShortBody": "ಚಿಕ್ಕ ಸ್ವೈಪ್ ಹಿಂತಿರುಗುತ್ತದೆ, ಪುಟ ತಿರುಗುವುದಿಲ್ಲ.",
+  "tourSwipeLongBody": "ದೀರ್ಘ ಸ್ವೈಪ್ ಪುಟವನ್ನು ತಿರುಗಿಸುತ್ತದೆ.",
+  "tourSwipeFastBody": "ವೇಗದ ಸ್ವೈಪ್ ಕೂಡ ಪುಟವನ್ನು ತಿರುಗಿಸುತ್ತದೆ.",
   "readScannedBooks": "ಸ್ಕ್ಯಾನ್ ಮಾಡಿದ ಪುಸ್ತಕಗಳನ್ನು ಓದಿ",
   "readScannedBooksSub": "ಆಯ್ಕೆ ಮಾಡಬಹುದಾದ ಪಠ್ಯವಿಲ್ಲದ ಪುಟಗಳನ್ನು ಓದಲು ಸಾಧನ OCR ಬಳಸಿ"
 }

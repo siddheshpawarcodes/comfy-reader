@@ -183,6 +183,10 @@
   "tourBrightnessBody": "Adjust screen brightness without leaving the book.",
   "tourBookmarkTitle": "Bookmark",
   "tourBookmarkBody": "Save your place and find it again later.",
+  "tourSwipeTitle": "Turning pages",
+  "tourSwipeShortBody": "A short swipe springs back — the page stays put.",
+  "tourSwipeLongBody": "A long swipe turns the page.",
+  "tourSwipeFastBody": "A quick flick turns the page too.",
   "readScannedBooks": "Read scanned books",
   "readScannedBooksSub": "Use on-device OCR to read pages that have no selectable text",
   "@readScannedBooks": {

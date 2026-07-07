@@ -128,6 +128,10 @@
   "tourBrightnessBody": "किताब छोड़े बिना स्क्रीन की चमक समायोजित करें।",
   "tourBookmarkTitle": "बुकमार्क",
   "tourBookmarkBody": "अपनी जगह सहेजें और बाद में फिर पाएँ।",
+  "tourSwipeTitle": "पेज पलटना",
+  "tourSwipeShortBody": "छोटा स्वाइप वापस आ जाता है, पेज नहीं पलटता।",
+  "tourSwipeLongBody": "लंबा स्वाइप पेज पलट देता है।",
+  "tourSwipeFastBody": "तेज़ स्वाइप भी पेज पलट देता है।",
   "readScannedBooks": "स्कैन की गई किताबें पढ़ें",
   "readScannedBooksSub": "बिना चयन-योग्य टेक्स्ट वाले पृष्ठ पढ़ने के लिए डिवाइस OCR उपयोग करें"
 }

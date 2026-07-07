@@ -904,6 +904,30 @@ abstract class AppLocalizations {
   /// **'Save your place and find it again later.'**
   String get tourBookmarkBody;
 
+  /// No description provided for @tourSwipeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turning pages'**
+  String get tourSwipeTitle;
+
+  /// No description provided for @tourSwipeShortBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A short swipe springs back — the page stays put.'**
+  String get tourSwipeShortBody;
+
+  /// No description provided for @tourSwipeLongBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A long swipe turns the page.'**
+  String get tourSwipeLongBody;
+
+  /// No description provided for @tourSwipeFastBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A quick flick turns the page too.'**
+  String get tourSwipeFastBody;
+
   /// Toggle: OCR scanned (image-only) PDF pages for read-aloud
   ///
   /// In en, this message translates to:

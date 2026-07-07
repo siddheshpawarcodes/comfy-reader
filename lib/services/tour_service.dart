@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'storage_service.dart';
 
 /// Tracks which one-time feature tours (showcase coach-marks) the user has
@@ -28,5 +30,20 @@ class TourService {
     for (final key in keys) {
       await prefs.remove(key);
     }
+  }
+
+  VoidCallback? _pendingOnFinish;
+
+  /// Registers a one-shot callback for the next time a tour finishes. Call
+  /// this immediately before `ShowCaseWidget.of(context).startShowCase(...)`
+  /// so it pairs with that specific tour — the app uses a single app-wide
+  /// [ShowCaseWidget], so only one tour is ever in flight at a time.
+  void runOnNextFinish(VoidCallback callback) => _pendingOnFinish = callback;
+
+  /// Wired to `ShowCaseWidget.onFinish`; fires whichever tour is pending.
+  void handleFinish() {
+    final callback = _pendingOnFinish;
+    _pendingOnFinish = null;
+    callback?.call();
   }
 }

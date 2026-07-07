@@ -21,6 +21,7 @@ import '../../services/audio_service.dart';
 import '../../services/tour_service.dart';
 import 'widgets/book_curl_view.dart';
 import 'widgets/reader_overlay.dart';
+import 'widgets/swipe_gesture_demo.dart';
 
 /// The reading experience: immersive full-screen 3D page-curl over rasterized
 /// PDF pages, with audio + haptic turns, overlay chrome, tint, brightness, and
@@ -43,6 +44,7 @@ class _ReaderScreenState extends State<ReaderScreen>
   bool _brightnessTouched = false;
 
   // Reader feature-tour coach-mark anchors.
+  final _tourSwipeKey = GlobalKey();
   final _tourScrubberKey = GlobalKey();
   final _tourReadAloudKey = GlobalKey();
   final _tourTintKey = GlobalKey();
@@ -53,6 +55,11 @@ class _ReaderScreenState extends State<ReaderScreen>
   /// On the first-ever reader open, reveal the controls and run the feature
   /// tour. Two post-frames: one so [toggleOverlay] makes the chrome visible,
   /// the next so the coach-mark targets are laid out before highlighting.
+  ///
+  /// The overlay's own auto-hide timer is suspended for the duration of the
+  /// tour — otherwise it fires on its normal schedule while the coach-marks
+  /// are still stepping through, and the bar being highlighted (brightness,
+  /// bookmark) vanishes mid-tour.
   void _maybeStartReaderTour(ReaderProvider reader) {
     if (_readerTourScheduled || TourService.instance.seen(TourService.reader)) {
       return;
@@ -61,10 +68,16 @@ class _ReaderScreenState extends State<ReaderScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (!reader.overlayVisible) reader.toggleOverlay();
+      reader.suspendAutoHide();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         TourService.instance.markSeen(TourService.reader);
+        TourService.instance.runOnNextFinish(() {
+          if (!mounted) return;
+          reader.resumeAutoHide();
+        });
         ShowCaseWidget.of(context).startShowCase([
+          _tourSwipeKey,
           _tourScrubberKey,
           _tourReadAloudKey,
           _tourTintKey,
@@ -396,6 +409,20 @@ class _ReaderScreenState extends State<ReaderScreen>
                         tintShowcaseKey: _tourTintKey,
                         brightnessShowcaseKey: _tourBrightnessKey,
                         bookmarkShowcaseKey: _tourBookmarkKey,
+                      ),
+                    ),
+                    // Invisible anchor for the "how do I turn pages" coach
+                    // mark — purely a positioning target, so it's wrapped in
+                    // IgnorePointer to never intercept real reading gestures.
+                    Center(
+                      child: IgnorePointer(
+                        child: Showcase.withWidget(
+                          key: _tourSwipeKey,
+                          height: 250.h,
+                          width: 300.w,
+                          container: const SwipeGestureDemo(),
+                          child: SizedBox(width: 120.w, height: 120.w),
+                        ),
                       ),
                     ),
                   ],

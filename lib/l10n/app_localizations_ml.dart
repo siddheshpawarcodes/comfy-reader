@@ -442,6 +442,19 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ ഇടം സംരക്ഷിച്ച് പിന്നീട് കണ്ടെത്തുക.';
 
   @override
+  String get tourSwipeTitle => 'പേജ് മറിക്കൽ';
+
+  @override
+  String get tourSwipeShortBody =>
+      'ചെറിയ സ്വൈപ്പ് തിരികെ പോകും, പേജ് മറിയില്ല.';
+
+  @override
+  String get tourSwipeLongBody => 'നീണ്ട സ്വൈപ്പ് പേജ് മറിക്കും.';
+
+  @override
+  String get tourSwipeFastBody => 'വേഗത്തിലുള്ള സ്വൈപ്പും പേജ് മറിക്കും.';
+
+  @override
   String get readScannedBooks => 'സ്കാൻ ചെയ്ത പുസ്തകങ്ങൾ വായിക്കുക';
 
   @override

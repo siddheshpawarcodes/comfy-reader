@@ -442,6 +442,19 @@ class AppLocalizationsTe extends AppLocalizations {
       'మీ స్థానాన్ని సేవ్ చేసి తర్వాత మళ్లీ కనుగొనండి.';
 
   @override
+  String get tourSwipeTitle => 'పేజీ తిప్పడం';
+
+  @override
+  String get tourSwipeShortBody =>
+      'చిన్న స్వైప్ వెనక్కి వెళ్తుంది, పేజీ తిరగదు.';
+
+  @override
+  String get tourSwipeLongBody => 'పొడవైన స్వైప్ పేజీని తిప్పుతుంది.';
+
+  @override
+  String get tourSwipeFastBody => 'వేగవంతమైన స్వైప్ కూడా పేజీని తిప్పుతుంది.';
+
+  @override
   String get readScannedBooks => 'స్కాన్ చేసిన పుస్తకాలను చదవండి';
 
   @override

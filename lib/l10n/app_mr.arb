@@ -128,6 +128,10 @@
   "tourBrightnessBody": "पुस्तक न सोडता स्क्रीन उजळपणा समायोजित करा.",
   "tourBookmarkTitle": "खूण",
   "tourBookmarkBody": "तुमची जागा जतन करा आणि नंतर पुन्हा शोधा.",
+  "tourSwipeTitle": "पान उलटणे",
+  "tourSwipeShortBody": "छोटा स्वाइप मागे येतो, पान उलटत नाही.",
+  "tourSwipeLongBody": "मोठा स्वाइप पान उलटवतो.",
+  "tourSwipeFastBody": "जलद स्वाइपनेही पान उलटते.",
   "readScannedBooks": "स्कॅन केलेली पुस्तके वाचा",
   "readScannedBooksSub": "निवडण्यायोग्य मजकूर नसलेली पृष्ठे वाचण्यासाठी डिव्हाइस OCR वापरा"
 }

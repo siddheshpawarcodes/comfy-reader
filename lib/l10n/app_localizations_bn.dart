@@ -436,6 +436,18 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার জায়গা সংরক্ষণ করুন ও পরে আবার খুঁজে নিন।';
 
   @override
+  String get tourSwipeTitle => 'পাতা উল্টানো';
+
+  @override
+  String get tourSwipeShortBody => 'ছোট সোয়াইপ ফিরে আসে, পাতা উল্টায় না।';
+
+  @override
+  String get tourSwipeLongBody => 'লম্বা সোয়াইপে পাতা উল্টে যায়।';
+
+  @override
+  String get tourSwipeFastBody => 'দ্রুত সোয়াইপেও পাতা উল্টে যায়।';
+
+  @override
   String get readScannedBooks => 'স্ক্যান করা বই পড়ুন';
 
   @override

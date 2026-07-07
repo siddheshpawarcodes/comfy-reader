@@ -436,6 +436,19 @@ class AppLocalizationsKn extends AppLocalizations {
   String get tourBookmarkBody => 'ನಿಮ್ಮ ಸ್ಥಳ ಉಳಿಸಿ ಮತ್ತೆ ಸುಲಭವಾಗಿ ಹುಡುಕಿ.';
 
   @override
+  String get tourSwipeTitle => 'ಪುಟ ತಿರುಗಿಸುವುದು';
+
+  @override
+  String get tourSwipeShortBody =>
+      'ಚಿಕ್ಕ ಸ್ವೈಪ್ ಹಿಂತಿರುಗುತ್ತದೆ, ಪುಟ ತಿರುಗುವುದಿಲ್ಲ.';
+
+  @override
+  String get tourSwipeLongBody => 'ದೀರ್ಘ ಸ್ವೈಪ್ ಪುಟವನ್ನು ತಿರುಗಿಸುತ್ತದೆ.';
+
+  @override
+  String get tourSwipeFastBody => 'ವೇಗದ ಸ್ವೈಪ್ ಕೂಡ ಪುಟವನ್ನು ತಿರುಗಿಸುತ್ತದೆ.';
+
+  @override
   String get readScannedBooks => 'ಸ್ಕ್ಯಾನ್ ಮಾಡಿದ ಪುಸ್ತಕಗಳನ್ನು ಓದಿ';
 
   @override

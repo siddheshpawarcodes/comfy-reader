@@ -128,6 +128,10 @@
   "tourBrightnessBody": "বই ছাড়াই স্ক্রিনের উজ্জ্বলতা সমন্বয় করুন।",
   "tourBookmarkTitle": "বুকমার্ক",
   "tourBookmarkBody": "আপনার জায়গা সংরক্ষণ করুন ও পরে আবার খুঁজে নিন।",
+  "tourSwipeTitle": "পাতা উল্টানো",
+  "tourSwipeShortBody": "ছোট সোয়াইপ ফিরে আসে, পাতা উল্টায় না।",
+  "tourSwipeLongBody": "লম্বা সোয়াইপে পাতা উল্টে যায়।",
+  "tourSwipeFastBody": "দ্রুত সোয়াইপেও পাতা উল্টে যায়।",
   "readScannedBooks": "স্ক্যান করা বই পড়ুন",
   "readScannedBooksSub": "নির্বাচনযোগ্য টেক্সট নেই এমন পৃষ্ঠা পড়তে ডিভাইস OCR ব্যবহার করুন"
 }
