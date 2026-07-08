@@ -1,10 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../core/utils/app_log.dart';
 import '../core/utils/speech_text_normalizer.dart';
+import 'ocr_cache_service.dart';
 import 'pdf_service.dart';
 
 /// On-device OCR fallback for read-aloud on scanned PDFs — pages that have no
@@ -24,26 +25,45 @@ class OcrService {
   TextRecognizer? _latin;
   TextRecognizer? _devanagari;
 
+  /// Persistent, cross-session cache (injectable for tests).
+  OcrCacheService _persistentCache = OcrCacheService.instance;
+
+  /// Overrides the persistent cache (tests bind a temporary box).
+  @visibleForTesting
+  set persistentCache(OcrCacheService cache) => _persistentCache = cache;
+
   /// Width (px) to render a page for OCR — high enough for accuracy, bounded to
   /// keep recognition fast and memory sane.
   static const double _renderWidth = 2000;
 
-  /// Per-session cache of recognized page text (FIFO-bounded), keyed by
-  /// `file#page`, so pause/resume or revisiting a page doesn't re-run OCR.
+  /// L1 per-session cache of recognized page text (FIFO-bounded), keyed by
+  /// `file#page`, so pause/resume or revisiting a page doesn't re-run OCR. The
+  /// persistent [OcrCacheService] is the L2 cache that survives restarts.
   static const int _cacheCap = 64;
   final Map<String, String> _cache = {};
 
   /// Recognizes the text of [pageIndex] (0-based) in the PDF at [path]. Returns
   /// the text, `''` when nothing is found, or null on failure. [pdf] renders the
-  /// page image.
+  /// page image. When [bookId] is given, results are read from and written to
+  /// the persistent cache so a page is OCR'd at most once, ever.
   Future<String?> recognizePage(
     String path,
     int pageIndex, {
     required PdfService pdf,
+    String? bookId,
   }) async {
     final key = '$path#$pageIndex';
     final cached = _cache[key];
     if (cached != null) return cached;
+
+    // L2: persistent cache (survives restarts). Populate L1 on a hit.
+    if (bookId != null) {
+      final persisted = _persistentCache.get(bookId, pageIndex);
+      if (persisted != null) {
+        _put(key, persisted);
+        return persisted;
+      }
+    }
 
     Directory? tempDir;
     try {
@@ -65,6 +85,7 @@ class OcrService {
 
       final text = _normalize(best);
       _put(key, text);
+      if (bookId != null) await _persistentCache.put(bookId, pageIndex, text);
       return text;
     } catch (e, st) {
       AppLog.warning('recognizePage($pageIndex) failed for $path',

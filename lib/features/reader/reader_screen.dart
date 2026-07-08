@@ -103,6 +103,7 @@ class _ReaderScreenState extends State<ReaderScreen>
       );
       _readAloud = ReadAloudController(
         filePath: book.filePath,
+        bookId: book.id,
         reader: _reader!,
         curl: _curl,
         initialRate: settings.speechRate,

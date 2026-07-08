@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/utils/app_paths.dart';
 import '../models/book_model.dart';
 import '../models/bookmark_model.dart';
+import 'ocr_cache_service.dart';
 
 /// Centralized persistence: Hive boxes for books + bookmarks (stored as maps,
 /// no codegen) and SharedPreferences for settings.
@@ -27,6 +28,10 @@ class StorageService {
     Hive.init(AppPaths.support.path);
     _booksBox = await Hive.openBox<Map>(_booksBoxName);
     _bookmarksBox = await Hive.openBox<Map>(_bookmarksBoxName);
+    // Persistent OCR/quality-repair cache (see OcrCacheService). Opened here so
+    // all Hive boxes share one owner; bound into the service for the pipeline.
+    final ocrCacheBox = await Hive.openBox<Map>(OcrCacheService.boxName);
+    OcrCacheService.instance.bind(ocrCacheBox);
     prefs = await SharedPreferences.getInstance();
     _initialized = true;
   }
@@ -46,7 +51,11 @@ class StorageService {
 
   Future<void> saveBook(BookModel book) => _booksBox.put(book.id, book.toMap());
 
-  Future<void> deleteBook(String id) => _booksBox.delete(id);
+  Future<void> deleteBook(String id) async {
+    await _booksBox.delete(id);
+    // Reclaim the book's OCR cache; its pages can never be needed again.
+    await OcrCacheService.instance.clearBook(id);
+  }
 
   // ---- Bookmarks ----
 

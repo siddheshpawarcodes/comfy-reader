@@ -8,6 +8,7 @@ import '../core/utils/language_detector.dart';
 import '../features/reader/widgets/book_curl_view.dart';
 import '../services/ocr_service.dart';
 import '../services/pdf_service.dart';
+import '../services/text_quality_analyzer.dart';
 import '../services/tts_service.dart';
 import 'reader_provider.dart';
 
@@ -49,10 +50,12 @@ class ReadAloudController extends ChangeNotifier {
     required this.reader,
     required this.curl,
     required double initialRate,
+    this.bookId,
     this.autoDetectLanguage = true,
     this.devanagariLanguage = 'hi-IN',
     this.voiceByLanguage = const <String, String>{},
     this.readScannedBooks = true,
+    this.qualityThreshold = TextQualityAnalyzer.qualityThreshold,
     PdfService? pdf,
     TtsService? tts,
     OcrService? ocr,
@@ -66,6 +69,12 @@ class ReadAloudController extends ChangeNotifier {
   }
 
   final String filePath;
+
+  /// Stable book id ([BookModel.id]) used to key the persistent OCR cache, so a
+  /// page repaired by OCR is never OCR'd again across sessions. Null disables
+  /// persistent caching (OCR still works, session-cached only).
+  final String? bookId;
+
   final ReaderProvider reader;
   final BookCurlController curl;
   final PdfService _pdf;
@@ -82,7 +91,13 @@ class ReadAloudController extends ChangeNotifier {
   final Map<String, String> voiceByLanguage;
 
   /// OCR pages with no text layer (scanned books) so they can still be read.
+  /// Also gates the corruption-repair OCR path (same cost, same user opt-in).
   final bool readScannedBooks;
+
+  /// Extracted text scoring below this (see [TextQualityAnalyzer]) is treated as
+  /// corrupt and routed to OCR. `0` disables the quality gate (empty-page OCR
+  /// still runs); `1` would force OCR on every page.
+  final double qualityThreshold;
 
   /// Debounce page-change reactions so scrubbing many pages doesn't stutter.
   static const Duration _pageSettle = Duration(milliseconds: 350);
@@ -235,15 +250,38 @@ class ReadAloudController extends ChangeNotifier {
     if (token != _extractToken) return; // a newer page took over
 
     var body = (text ?? '').trim();
-    // No embedded text → likely a scanned page. Fall back to OCR (slower) if the
-    // user hasn't turned it off.
-    if (body.isEmpty && readScannedBooks) {
+
+    // The text layer may be empty (scanned page) OR non-empty but corrupt: PDFs
+    // with broken `ToUnicode` CMaps render fine yet extract garbage code points
+    // (foreign Arabic/Cyrillic/… glyphs scattered through Indic text). Score the
+    // extraction; if it's empty or below the quality bar, fall back to OCR
+    // (slower) and keep whichever text reads better — unless the user opted out.
+    final extractedReport = TextQualityAnalyzer.analyze(body);
+    final needsOcr =
+        body.isEmpty || !extractedReport.isAcceptable(qualityThreshold);
+    if (needsOcr && readScannedBooks) {
+      if (body.isNotEmpty) {
+        AppLog.info(
+          'page ${page + 1} extraction low quality → OCR ($extractedReport)',
+          name: 'ReadAloudController',
+        );
+      }
       _ocrRunning = true;
       notifyListeners(); // surface the "Scanning…" status
-      final recognized = await _ocr.recognizePage(filePath, page, pdf: _pdf);
+      final recognized =
+          await _ocr.recognizePage(filePath, page, pdf: _pdf, bookId: bookId);
       _ocrRunning = false;
       if (token != _extractToken) return; // page changed during OCR
-      body = (recognized ?? '').trim();
+      final ocrBody = (recognized ?? '').trim();
+      // Empty text layer: any OCR text is an improvement. Corrupt text layer:
+      // only adopt OCR when it actually scores higher (OCR can misread too).
+      if (body.isEmpty) {
+        body = ocrBody;
+      } else if (ocrBody.isNotEmpty &&
+          TextQualityAnalyzer.calculateQualityScore(ocrBody) >
+              extractedReport.score) {
+        body = ocrBody;
+      }
     }
     if (body.isEmpty) {
       _handleEmptyPage();
